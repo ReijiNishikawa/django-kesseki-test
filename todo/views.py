@@ -23,10 +23,7 @@ def detail(request, task_id):
         task = Task.objects.get(pk=task_id)
     except Task.DoesNotExist:
         raise Http404("Task does not exist")
-    
-    context = {
-        'task': task,
-    } 
+    task.delete()
     return render(request, 'todo/detail.html', context)
 
 def update(request, task_id):
