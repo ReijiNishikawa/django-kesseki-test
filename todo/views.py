@@ -5,9 +5,12 @@ from django.http import Http404
 from django.utils.timezone import make_aware
 from django.utils.dateparse import parse_datetime
 from todo.models import Task
+from django.db.models import Q
 
 def index(request):
+    q = request.GET.get('q', '').strip()
     if request.method == 'POST':
+        title = request.POST.get('title', '').strip()
         due_at_str = request.POST.get('due_at')
         if due_at_str:
             due_at_parsed = parse_datetime(due_at_str)
@@ -15,26 +18,24 @@ def index(request):
                 due_at_aware = make_aware(due_at_parsed)
             else:
                 due_at_aware = None
-        else:
-            due_at_aware = None
-
-        task = Task(
-            title=request.POST['title'],
-            due_at=due_at_aware
-        )
-        if 'attach' in request.FILES:
-            task.attach = request.FILES['attach']
-        task.save()
-        return redirect('index')
+            if title:
+                Task.objects.create(title=title, due_at=due_at_aware)
 
     if request.GET.get('order') == 'due':
         tasks = Task.objects.order_by('due_at')
     else:
         tasks = Task.objects.order_by('-posted_at')
-    context = {
-        'tasks': tasks
-    }
-    return render(request, 'todo/index.html', context)
+
+    if q:
+        tasks = tasks.filter(
+            Q(title__icontains=q)
+            | Q(description__icontains=q)
+        )
+
+    return render(request, 'todo/index.html', {
+        'tasks': tasks,
+        'q': q,
+    })
 
 def detail(request, task_id):
     try:
@@ -81,7 +82,7 @@ def close(request, task_id):
         raise Http404("Task does not exist")
     task.completed = True
     task.save()
-    return redirect(index)
+    return redirect('index')
 
 def delete(request, task_id):
     try:
