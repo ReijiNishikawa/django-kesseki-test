@@ -22,6 +22,8 @@ def index(request):
             title=request.POST['title'],
             due_at=due_at_aware
         )
+        if 'attach' in request.FILES:
+            task.attach = request.FILES['attach']
         task.save()
         return redirect('index')
 
@@ -52,7 +54,9 @@ def update(request, task_id):
 
     if request.method == 'POST':
         task.title = request.POST['title']
-        
+        task.due_at = make_aware(parse_datetime(request.POST['due_at']))
+        if 'attach' in request.FILES:
+            task.attach = request.FILES['attach']
         due_at_str = request.POST.get('due_at')
         if due_at_str:
             due_at_parsed = parse_datetime(due_at_str)
@@ -62,7 +66,6 @@ def update(request, task_id):
                 task.due_at = None
         else:
             task.due_at = None
-            
         task.save()
         return redirect('detail', task_id=task.id)
 
