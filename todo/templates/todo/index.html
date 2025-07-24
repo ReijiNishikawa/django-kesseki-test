@@ -11,7 +11,8 @@
   <body>
     <h1>Sample To Do Application</h1>
     <p>You can submit tasks from the following form.</p>
-    <form action="{% url 'index' %}" method="post">
+    <!-- ★ enctype追加。ファイルinput追加 -->
+    <form action="{% url 'index' %}" method="post" enctype="multipart/form-data">
       {% csrf_token %}
       <div>
         <label for="titleInput">Title</label><br>
@@ -20,6 +21,10 @@
       <div>
         <label for="dueInput">Due at:</label><br>
         <input id="dueInput" name="due_at" type="datetime-local">
+      </div>
+      <div>
+        <label for="attachInput">添付ファイルを選択:</label><br>
+        <input id="attachInput" name="attach" type="file">
       </div>
       <div>
         <button type="submit">Submit</button>
@@ -44,6 +49,9 @@
         <li>Status: Completed</li>
         {% else %}
         <li>Status: Not Completed</li>
+        {% endif %}
+        {% if task.attach %}
+        <li>添付ファイル: <a href="{{ task.attach.url }}" download>ダウンロード</a></li>
         {% endif %}
       </ul>
     </div>

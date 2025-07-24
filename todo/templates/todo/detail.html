@@ -20,6 +20,14 @@
       {% else %}
       <li>Status: Not Completed</li>
       {% endif %}
+      {% if task.attach %}
+      <li>添付ファイル:
+        <a href="{{ task.attach.url }}" download>ダウンロード</a>
+        （ファイル名：{{ task.attach.name|slice:"11:" }}) <!-- "attachments/"は11文字 -->
+      </li>
+      {% else %}
+      <li>添付ファイル: なし</li>
+      {% endif %}
     </ul>
 
     <div>
@@ -27,8 +35,6 @@
       <a href="{% url 'update' task.id %}">Edit</a>
       <a href="{% url 'delete' task.id %}">Delete</a>
       <a href="{% url 'close' task.id %}">Close</a>
-
-
     </div>
   </body>
 

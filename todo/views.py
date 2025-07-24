@@ -10,6 +10,8 @@ def index(request):
             title=request.POST['title'],
             due_at=make_aware(parse_datetime(request.POST['due_at']))
         )
+        if 'attach' in request.FILES:
+            task.attach = request.FILES['attach']
         task.save()
     if request.GET.get('order') == 'due':
         tasks = Task.objects.order_by('due_at')
@@ -39,6 +41,8 @@ def update(request, task_id):
     if request.method == 'POST':
         task.title = request.POST['title']
         task.due_at = make_aware(parse_datetime(request.POST['due_at']))
+        if 'attach' in request.FILES:
+            task.attach = request.FILES['attach']
         task.save()
         return redirect('detail', task_id=task.id)
 
