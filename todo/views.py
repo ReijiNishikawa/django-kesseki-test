@@ -5,8 +5,10 @@ from django.http import Http404
 from django.utils.timezone import make_aware
 from django.utils.dateparse import parse_datetime
 from todo.models import Task
+from django.db.models import Q
 
 def index(request):
+    q = request.GET.get('q', '').strip()
     if request.method == 'POST':
         due_at_str = request.POST.get('due_at')
         if due_at_str:
@@ -29,8 +31,16 @@ def index(request):
         tasks = Task.objects.order_by('due_at')
     else:
         tasks = Task.objects.order_by('-posted_at')
+
+    if q:
+        tasks = tasks.filter(
+            Q(title__icontains=q)
+            | Q(description__icontains=q)
+        )
+
     context = {
-        'tasks': tasks
+        'tasks': tasks,
+        'q': q,
     }
     return render(request, 'todo/index.html', context)
 

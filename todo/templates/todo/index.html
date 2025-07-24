@@ -29,9 +29,23 @@
     <br>
 
     <div>
-      <a href="{% url 'index' %}?order=due">Sort by Due Date</a> |
-      <a href="{% url 'index' %}?order=post">Sort by Posted Date</a>
+      <a href="{% url 'index' %}?order=due{% if q %}&q={{ q }}">Sort by Due Date</a> |
+      <a href="{% url 'index' %}?order=post{% if q %}&q={{ q }}">Sort by Posted Date</a>
     </div>
+
+    <form method="get" action="{% url 'index' %}">
+    <input
+      type="text"
+      name="q"
+      value="{{ q }}"
+      placeholder="タイトル／詳細をキーワード検索"
+    />
+      <input type="hidden" name="order" value="{{ request.GET.order }}">
+      <button type="submit">検索</button>
+      {% if q %}
+        <a href="{% url 'index' %}">クリア</a>
+      {% endif %}
+    </form>
 
     {% for task in tasks %}
     <div class="text">
